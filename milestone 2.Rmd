@@ -1,6 +1,6 @@
 ---
 title: "Untitled"
-author: "Shadae Peart"
+author: "Shadae Peart, Jasmine Mingo"
 date: "2026-10-04"
 output: html_document
 ---
@@ -9,22 +9,29 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## This dataset 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+library(readr)
+cdc_wonder_mortality <- read_csv("cdc_wonder_mortality.csv")
+View(cdc_wonder_mortality)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+library(readr)
+cdc_wonder_population <- read_csv("cdc_wonder_population.csv")
+View(cdc_wonder_population)
+```
+```{r}
+library(readr)
+kff_cms_medicaid_state_summary <- read_csv("kff_cms_medicaid_state_summary.csv")
+View(kff_cms_medicaid_state_summary)
+```
+```{r}
+library(readr)
+kff_cms_medicare_state_summary <- read_csv("kff_cms_medicare_state_summary.csv")
+View(kff_cms_medicare_state_summary)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
