@@ -1,0 +1,61 @@
+---
+title: "Milestone 2"
+author: "Shadae Peart, Jasmine Mingo"
+date: "2026-10-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+## This dataset 
+
+library(readr)
+
+cdc_wonder_mortality <- read_csv("cdc_wonder_mortality.csv")
+cdc_wonder_population <- read_csv("cdc_wonder_population.csv")
+kff_cms_medicaid_state_summary <- read_csv("kff_cms_medicaid_state_summary.csv")
+kff_cms_medicare_state_summary <- read_csv("kff_cms_medicare_state_summary.csv")
+```
+
+
+
+
+
+
+```
+
+
+
+``` {r}
+# Check variable names
+names(cdc_wonder_mortality)
+names(cdc_wonder_population)
+names(kff_cms_medicaid_state_summary)
+names(kff_cms_medicare_state_summary)
+
+# Check data types
+str(cdc_wonder_mortality)
+str(cdc_wonder_population)
+str(kff_cms_medicaid_state_summary)
+str(kff_cms_medicare_state_summary)
+```
+
+```{R}
+summary(cdc_wonder_mortality)
+summary(cdc_wonder_population)
+summary(kff_cms_medicaid_state_summary)
+summary(kff_cms_medicare_state_summary)
+
+mean(cdc_wonder_mortality$Deaths, na.rm = TRUE)
+median(cdc_wonder_mortality$Deaths, na.rm = TRUE)
+range(cdc_wonder_mortality$Deaths, na.rm = TRUE)
+```
+```{R}
+unique(cdc_wonder_mortality$State)
+
+length(unique(cdc_wonder_mortality$State))
+```
+```{R}
+head(cdc_wonder_mortality)
+knitr::kable(head(cdc_wonder_mortality))
+```
