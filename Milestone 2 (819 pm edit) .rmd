@@ -5,9 +5,11 @@ date: "2026-10-04"
 output: html_document
 ---
 
+. 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-## This dataset 
+## This dataset provides us with data from two main sources:CDC Wonder and KFF (Kaiser Family Foundation). The CDC wonder datasets provide mortality and population data , while the KFF datasets provide state-level Medicare and Medicaid data. The information from this lists all states , along with their income and medicare and medicaid use defend the notion of increasing healthcare spending in certain states
 
 library(readr)
 
