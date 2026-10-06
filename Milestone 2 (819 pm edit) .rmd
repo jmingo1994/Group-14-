@@ -19,13 +19,12 @@ kff_cms_medicaid_state_summary <- read_csv("kff_cms_medicaid_state_summary.csv")
 kff_cms_medicare_state_summary <- read_csv("kff_cms_medicare_state_summary.csv")
 ```
 
-```{r}
-names(cdc_wonder_population)
-names(cdc_wonder_mortality)
-names(kff_cms_medicare_state_summary)
-names(kff_cms_medicaid_state_summary)
-```
 
+
+
+
+
+```
 
 
 
