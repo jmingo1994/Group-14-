@@ -5,11 +5,13 @@ date: "2026-10-04"
 output: html_document
 ---
 
-. 
+## Data Source
+This dataset provides us with data from two main sources:CDC Wonder and KFF (Kaiser Family Foundation). The CDC wonder datasets provide mortality and population data , while the KFF datasets provide state-level Medicare and Medicaid data. The information from this lists all states , along with their income and medicare and medicaid use defend the notion of increasing healthcare spending in certain states. Five useful data elements would be State,Population,Mortality/Deaths,Medicare/Medicaid Spending and income. Data elements State/Character, Population/Numeric, Deaths/numeric, Medicare spending/numeric, income/numeric.Data elements State/Character, Population/Numeric, Deaths/numeric, Medicare spending/numeric, income/numeric
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-## This dataset provides us with data from two main sources:CDC Wonder and KFF (Kaiser Family Foundation). The CDC wonder datasets provide mortality and population data , while the KFF datasets provide state-level Medicare and Medicaid data. The information from this lists all states , along with their income and medicare and medicaid use defend the notion of increasing healthcare spending in certain states
+
 
 library(readr)
 
@@ -18,8 +20,6 @@ cdc_wonder_population <- read_csv("cdc_wonder_population.csv")
 kff_cms_medicaid_state_summary <- read_csv("kff_cms_medicaid_state_summary.csv")
 kff_cms_medicare_state_summary <- read_csv("kff_cms_medicare_state_summary.csv")
 ```
-
-
 
 
 
