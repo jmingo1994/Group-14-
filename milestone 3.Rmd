@@ -112,4 +112,278 @@ write.csv(medicare_clean,
           "medicare_clean.csv",
           row.names = FALSE)
 ```
+``` {r}
+# PART 2: MORTALITY AND POPULATION — AGES 65+
 
+# 1. LOAD PACKAGES -----------------------------------------
+
+library(dplyr)
+library(readr)
+
+
+# 2. LOAD BOTH FILES BEFORE USING THEM ----------------------
+
+mortality <- read_csv(
+  "cdc_wonder_mortality.csv",
+  show_col_types = FALSE
+)
+
+population <- read_csv(
+  "cdc_wonder_population.csv",
+  show_col_types = FALSE
+)
+
+# Remove extra spaces around column names
+names(mortality) <- trimws(names(mortality))
+names(population) <- trimws(names(population))
+
+print(names(mortality))
+print(names(population))
+
+
+# 3. CHECK REQUIRED COLUMNS --------------------------------
+
+mortality_columns <- c(
+  "Residence State",
+  "Residence State Code",
+  "Ten-Year Age Groups",
+  "Ten-Year Age Groups Code",
+  "UCD - ICD Sub-Chapter",
+  "UCD - ICD Sub-Chapter Code",
+  "Deaths"
+)
+
+population_columns <- c(
+  "State",
+  "Ten-Year Age Groups",
+  "Population"
+)
+
+if (!all(mortality_columns %in% names(mortality))) {
+  stop(
+    "Missing mortality columns: ",
+    paste(
+      setdiff(mortality_columns, names(mortality)),
+      collapse = ", "
+    )
+  )
+}
+
+if (!all(population_columns %in% names(population))) {
+  stop(
+    "Missing population columns: ",
+    paste(
+      setdiff(population_columns, names(population)),
+      collapse = ", "
+    ),
+    ". Check names(population)."
+  )
+}
+
+
+# 4. DEFINE A FUNCTION FOR SUMMING COUNTS -------------------
+
+# Keep NA if every count is missing
+sum_available <- function(x) {
+  if (all(is.na(x))) NA_real_ else sum(x, na.rm = TRUE)
+}
+
+
+# 5. CLEAN MORTALITY AND IDENTIFY AGES 65+ -------------------
+
+mortality_clean <- mortality %>%
+  rename(
+    state = `Residence State`,
+    age_group = `Ten-Year Age Groups`,
+    icd_subchapter = `UCD - ICD Sub-Chapter`,
+    icd_code = `UCD - ICD Sub-Chapter Code`,
+    deaths = Deaths
+  ) %>%
+  mutate(
+    state = toupper(trimws(state)),
+    age_group = trimws(age_group),
+    icd_code = trimws(as.character(icd_code)),
+    deaths = parse_number(as.character(deaths)),
+    age_65_plus = grepl("^(65|75|85)", age_group)
+  ) %>%
+  filter(
+    state %in% c(toupper(state.name), "DISTRICT OF COLUMBIA")
+  )
+
+# Check the age labels selected
+print(
+  mortality_clean %>%
+    filter(age_65_plus) %>%
+    distinct(age_group)
+)
+
+if (!any(mortality_clean$age_65_plus)) {
+  stop("No mortality ages 65+ matched. Check the age labels.")
+}
+
+
+# 6. FIND THE TOP TWO ICD SUB-CHAPTERS ----------------------
+
+top_2_icd <- mortality_clean %>%
+  filter(
+    age_65_plus,
+    !is.na(icd_subchapter),
+    trimws(icd_subchapter) != "",
+    !is.na(icd_code),
+    icd_code != ""
+  ) %>%
+  group_by(icd_code, icd_subchapter) %>%
+  summarise(
+    total_deaths = sum_available(deaths),
+    .groups = "drop"
+  ) %>%
+  filter(!is.na(total_deaths)) %>%
+  arrange(desc(total_deaths), icd_code) %>%
+  slice_head(n = 2)
+
+if (nrow(top_2_icd) != 2) {
+  stop("Fewer than two ICD sub-chapters have usable death counts.")
+}
+
+# Display the selected ICD codes and names
+print(top_2_icd)
+
+
+# 7. CREATE THE INTERMEDIATE KEEP/REMOVE COLUMN -------------
+
+mortality_clean <- mortality_clean %>%
+  mutate(
+    keep_row = age_65_plus &
+      icd_code %in% top_2_icd$icd_code
+  )
+
+mortality_top_2 <- mortality_clean %>%
+  filter(keep_row)
+
+
+# 8. SUMMARIZE MORTALITY TO ONE ROW PER STATE ---------------
+
+mortality_by_state <- mortality_top_2 %>%
+  group_by(state) %>%
+  summarise(
+    total_deaths_65_plus = sum_available(deaths),
+    missing_death_counts = sum(is.na(deaths)),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    selected_icd_codes = paste(
+      top_2_icd$icd_code,
+      collapse = "; "
+    ),
+    selected_icd_subchapters = paste(
+      top_2_icd$icd_subchapter,
+      collapse = "; "
+    )
+  )
+
+print(mortality_by_state)
+
+
+# 9. CLEAN POPULATION AND IDENTIFY AGES 65+ ------------------
+
+population_clean <- population %>%
+  rename(
+    state = State,
+    age_group = `Ten-Year Age Groups`,
+    population_count = Population
+  ) %>%
+  mutate(
+    # Change "01-Alabama" to "ALABAMA"
+    state = toupper(
+      trimws(sub("^[0-9]+\\s*-\\s*", "", state))
+    ),
+    age_group = trimws(age_group),
+    population_count = parse_number(as.character(population_count)),
+    age_65_plus = age_group %in% c(
+      "65-74 years",
+      "75-84 years",
+      "85+ years"
+    )
+  ) %>%
+  filter(
+    state %in% c(toupper(state.name), "DISTRICT OF COLUMBIA")
+  )
+
+print(
+  population_clean %>%
+    filter(age_65_plus) %>%
+    distinct(age_group)
+)
+
+if (!any(population_clean$age_65_plus)) {
+  stop("No population ages 65+ matched. Check the age labels.")
+}
+
+# Review repeated state/age rows before summing
+population_duplicates <- population_clean %>%
+  filter(age_65_plus) %>%
+  count(state, age_group) %>%
+  filter(n > 1)
+
+if (nrow(population_duplicates) > 0) {
+  print(population_duplicates)
+  stop("Repeated state/age rows need review before summing population.")
+}
+
+
+# 10. SUMMARIZE POPULATION TO ONE ROW PER STATE -------------
+
+population_by_state <- population_clean %>%
+  filter(age_65_plus) %>%
+  group_by(state) %>%
+  summarise(
+    population_65_plus = sum_available(population_count),
+    missing_population_counts = sum(is.na(population_count)),
+    .groups = "drop"
+  )
+
+print(population_by_state)
+
+
+# 11. COMBINE MORTALITY AND POPULATION ----------------------
+
+part2_data <- full_join(
+  mortality_by_state,
+  population_by_state,
+  by = "state"
+) %>%
+  arrange(state)
+
+print(part2_data)
+
+# Show missing or incomplete results
+checks_needed <- part2_data %>%
+  filter(
+    is.na(total_deaths_65_plus) |
+      is.na(population_65_plus) |
+      missing_death_counts > 0 |
+      missing_population_counts > 0
+  )
+
+print(checks_needed)
+
+# Confirm one row per state
+stopifnot(!anyDuplicated(part2_data$state))
+
+
+# 12. EXPORT RESULTS ---------------------------------------
+
+write_csv(
+  part2_data,
+  "part2_mortality_population_65_plus.csv"
+)
+
+write_csv(
+  top_2_icd,
+  "part2_selected_icd_subchapters.csv"
+)
+
+# Show the folder containing the exported files
+getwd()
+
+```

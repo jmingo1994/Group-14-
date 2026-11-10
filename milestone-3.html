@@ -804,6 +804,339 @@ nrow(medicare_clean)</code></pre>
 <pre class="r"><code>write.csv(medicare_clean,
           &quot;medicare_clean.csv&quot;,
           row.names = FALSE)</code></pre>
+<pre class="r"><code># PART 2: MORTALITY AND POPULATION — AGES 65+
+
+# 1. LOAD PACKAGES -----------------------------------------
+
+library(dplyr)
+library(readr)
+
+
+# 2. LOAD BOTH FILES BEFORE USING THEM ----------------------
+
+mortality &lt;- read_csv(
+  &quot;cdc_wonder_mortality.csv&quot;,
+  show_col_types = FALSE
+)
+
+population &lt;- read_csv(
+  &quot;cdc_wonder_population.csv&quot;,
+  show_col_types = FALSE
+)
+
+# Remove extra spaces around column names
+names(mortality) &lt;- trimws(names(mortality))
+names(population) &lt;- trimws(names(population))
+
+print(names(mortality))</code></pre>
+<pre><code>## [1] &quot;Residence State&quot;            &quot;Residence State Code&quot;      
+## [3] &quot;UCD - ICD Sub-Chapter&quot;      &quot;UCD - ICD Sub-Chapter Code&quot;
+## [5] &quot;Ten-Year Age Groups&quot;        &quot;Ten-Year Age Groups Code&quot;  
+## [7] &quot;Deaths&quot;</code></pre>
+<pre class="r"><code>print(names(population))</code></pre>
+<pre><code>## [1] &quot;State&quot;               &quot;Ten-Year Age Groups&quot; &quot;Population&quot;</code></pre>
+<pre class="r"><code># 3. CHECK REQUIRED COLUMNS --------------------------------
+
+mortality_columns &lt;- c(
+  &quot;Residence State&quot;,
+  &quot;Residence State Code&quot;,
+  &quot;Ten-Year Age Groups&quot;,
+  &quot;Ten-Year Age Groups Code&quot;,
+  &quot;UCD - ICD Sub-Chapter&quot;,
+  &quot;UCD - ICD Sub-Chapter Code&quot;,
+  &quot;Deaths&quot;
+)
+
+population_columns &lt;- c(
+  &quot;State&quot;,
+  &quot;Ten-Year Age Groups&quot;,
+  &quot;Population&quot;
+)
+
+if (!all(mortality_columns %in% names(mortality))) {
+  stop(
+    &quot;Missing mortality columns: &quot;,
+    paste(
+      setdiff(mortality_columns, names(mortality)),
+      collapse = &quot;, &quot;
+    )
+  )
+}
+
+if (!all(population_columns %in% names(population))) {
+  stop(
+    &quot;Missing population columns: &quot;,
+    paste(
+      setdiff(population_columns, names(population)),
+      collapse = &quot;, &quot;
+    ),
+    &quot;. Check names(population).&quot;
+  )
+}
+
+
+# 4. DEFINE A FUNCTION FOR SUMMING COUNTS -------------------
+
+# Keep NA if every count is missing
+sum_available &lt;- function(x) {
+  if (all(is.na(x))) NA_real_ else sum(x, na.rm = TRUE)
+}
+
+
+# 5. CLEAN MORTALITY AND IDENTIFY AGES 65+ -------------------
+
+mortality_clean &lt;- mortality %&gt;%
+  rename(
+    state = `Residence State`,
+    age_group = `Ten-Year Age Groups`,
+    icd_subchapter = `UCD - ICD Sub-Chapter`,
+    icd_code = `UCD - ICD Sub-Chapter Code`,
+    deaths = Deaths
+  ) %&gt;%
+  mutate(
+    state = toupper(trimws(state)),
+    age_group = trimws(age_group),
+    icd_code = trimws(as.character(icd_code)),
+    deaths = parse_number(as.character(deaths)),
+    age_65_plus = grepl(&quot;^(65|75|85)&quot;, age_group)
+  ) %&gt;%
+  filter(
+    state %in% c(toupper(state.name), &quot;DISTRICT OF COLUMBIA&quot;)
+  )
+
+# Check the age labels selected
+print(
+  mortality_clean %&gt;%
+    filter(age_65_plus) %&gt;%
+    distinct(age_group)
+)</code></pre>
+<pre><code>## # A tibble: 3 × 1
+##   age_group  
+##   &lt;chr&gt;      
+## 1 65-74 years
+## 2 75-84 years
+## 3 85+ years</code></pre>
+<pre class="r"><code>if (!any(mortality_clean$age_65_plus)) {
+  stop(&quot;No mortality ages 65+ matched. Check the age labels.&quot;)
+}
+
+
+# 6. FIND THE TOP TWO ICD SUB-CHAPTERS ----------------------
+
+top_2_icd &lt;- mortality_clean %&gt;%
+  filter(
+    age_65_plus,
+    !is.na(icd_subchapter),
+    trimws(icd_subchapter) != &quot;&quot;,
+    !is.na(icd_code),
+    icd_code != &quot;&quot;
+  ) %&gt;%
+  group_by(icd_code, icd_subchapter) %&gt;%
+  summarise(
+    total_deaths = sum_available(deaths),
+    .groups = &quot;drop&quot;
+  ) %&gt;%
+  filter(!is.na(total_deaths)) %&gt;%
+  arrange(desc(total_deaths), icd_code) %&gt;%
+  slice_head(n = 2)
+
+if (nrow(top_2_icd) != 2) {
+  stop(&quot;Fewer than two ICD sub-chapters have usable death counts.&quot;)
+}
+
+# Display the selected ICD codes and names
+print(top_2_icd)</code></pre>
+<pre><code>## # A tibble: 2 × 3
+##   icd_code icd_subchapter           total_deaths
+##   &lt;chr&gt;    &lt;chr&gt;                           &lt;dbl&gt;
+## 1 C00-C97  Malignant neoplasms            446354
+## 2 I20-I25  Ischaemic heart diseases       297220</code></pre>
+<pre class="r"><code># 7. CREATE THE INTERMEDIATE KEEP/REMOVE COLUMN -------------
+
+mortality_clean &lt;- mortality_clean %&gt;%
+  mutate(
+    keep_row = age_65_plus &amp;
+      icd_code %in% top_2_icd$icd_code
+  )
+
+mortality_top_2 &lt;- mortality_clean %&gt;%
+  filter(keep_row)
+
+
+# 8. SUMMARIZE MORTALITY TO ONE ROW PER STATE ---------------
+
+mortality_by_state &lt;- mortality_top_2 %&gt;%
+  group_by(state) %&gt;%
+  summarise(
+    total_deaths_65_plus = sum_available(deaths),
+    missing_death_counts = sum(is.na(deaths)),
+    .groups = &quot;drop&quot;
+  ) %&gt;%
+  mutate(
+    selected_icd_codes = paste(
+      top_2_icd$icd_code,
+      collapse = &quot;; &quot;
+    ),
+    selected_icd_subchapters = paste(
+      top_2_icd$icd_subchapter,
+      collapse = &quot;; &quot;
+    )
+  )
+
+print(mortality_by_state)</code></pre>
+<pre><code>## # A tibble: 51 × 5
+##    state            total_deaths_65_plus missing_death_counts selected_icd_codes
+##    &lt;chr&gt;                           &lt;dbl&gt;                &lt;int&gt; &lt;chr&gt;             
+##  1 ALABAMA                         11307                    0 C00-C97; I20-I25  
+##  2 ALASKA                           1140                    0 C00-C97; I20-I25  
+##  3 ARIZONA                         16807                    0 C00-C97; I20-I25  
+##  4 ARKANSAS                         8355                    0 C00-C97; I20-I25  
+##  5 CALIFORNIA                      74993                    0 C00-C97; I20-I25  
+##  6 COLORADO                         9265                    0 C00-C97; I20-I25  
+##  7 CONNECTICUT                      7588                    0 C00-C97; I20-I25  
+##  8 DELAWARE                         2641                    0 C00-C97; I20-I25  
+##  9 DISTRICT OF COL…                 1223                    0 C00-C97; I20-I25  
+## 10 FLORIDA                         61467                    0 C00-C97; I20-I25  
+## # ℹ 41 more rows
+## # ℹ 1 more variable: selected_icd_subchapters &lt;chr&gt;</code></pre>
+<pre class="r"><code># 9. CLEAN POPULATION AND IDENTIFY AGES 65+ ------------------
+
+population_clean &lt;- population %&gt;%
+  rename(
+    state = State,
+    age_group = `Ten-Year Age Groups`,
+    population_count = Population
+  ) %&gt;%
+  mutate(
+    # Change &quot;01-Alabama&quot; to &quot;ALABAMA&quot;
+    state = toupper(
+      trimws(sub(&quot;^[0-9]+\\s*-\\s*&quot;, &quot;&quot;, state))
+    ),
+    age_group = trimws(age_group),
+    population_count = parse_number(as.character(population_count)),
+    age_65_plus = age_group %in% c(
+      &quot;65-74 years&quot;,
+      &quot;75-84 years&quot;,
+      &quot;85+ years&quot;
+    )
+  ) %&gt;%
+  filter(
+    state %in% c(toupper(state.name), &quot;DISTRICT OF COLUMBIA&quot;)
+  )
+
+print(
+  population_clean %&gt;%
+    filter(age_65_plus) %&gt;%
+    distinct(age_group)
+)</code></pre>
+<pre><code>## # A tibble: 3 × 1
+##   age_group  
+##   &lt;chr&gt;      
+## 1 65-74 years
+## 2 75-84 years
+## 3 85+ years</code></pre>
+<pre class="r"><code>if (!any(population_clean$age_65_plus)) {
+  stop(&quot;No population ages 65+ matched. Check the age labels.&quot;)
+}
+
+# Review repeated state/age rows before summing
+population_duplicates &lt;- population_clean %&gt;%
+  filter(age_65_plus) %&gt;%
+  count(state, age_group) %&gt;%
+  filter(n &gt; 1)
+
+if (nrow(population_duplicates) &gt; 0) {
+  print(population_duplicates)
+  stop(&quot;Repeated state/age rows need review before summing population.&quot;)
+}
+
+
+# 10. SUMMARIZE POPULATION TO ONE ROW PER STATE -------------
+
+population_by_state &lt;- population_clean %&gt;%
+  filter(age_65_plus) %&gt;%
+  group_by(state) %&gt;%
+  summarise(
+    population_65_plus = sum_available(population_count),
+    missing_population_counts = sum(is.na(population_count)),
+    .groups = &quot;drop&quot;
+  )
+
+print(population_by_state)</code></pre>
+<pre><code>## # A tibble: 51 × 3
+##    state                population_65_plus missing_population_counts
+##    &lt;chr&gt;                             &lt;dbl&gt;                     &lt;int&gt;
+##  1 ALABAMA                          888817                         0
+##  2 ALASKA                            97663                         0
+##  3 ARIZONA                         1333046                         0
+##  4 ARKANSAS                         528101                         0
+##  5 CALIFORNIA                      5957092                         0
+##  6 COLORADO                         879653                         0
+##  7 CONNECTICUT                      649235                         0
+##  8 DELAWARE                         201646                         0
+##  9 DISTRICT OF COLUMBIA              85838                         0
+## 10 FLORIDA                         4598386                         0
+## # ℹ 41 more rows</code></pre>
+<pre class="r"><code># 11. COMBINE MORTALITY AND POPULATION ----------------------
+
+part2_data &lt;- full_join(
+  mortality_by_state,
+  population_by_state,
+  by = &quot;state&quot;
+) %&gt;%
+  arrange(state)
+
+print(part2_data)</code></pre>
+<pre><code>## # A tibble: 51 × 7
+##    state            total_deaths_65_plus missing_death_counts selected_icd_codes
+##    &lt;chr&gt;                           &lt;dbl&gt;                &lt;int&gt; &lt;chr&gt;             
+##  1 ALABAMA                         11307                    0 C00-C97; I20-I25  
+##  2 ALASKA                           1140                    0 C00-C97; I20-I25  
+##  3 ARIZONA                         16807                    0 C00-C97; I20-I25  
+##  4 ARKANSAS                         8355                    0 C00-C97; I20-I25  
+##  5 CALIFORNIA                      74993                    0 C00-C97; I20-I25  
+##  6 COLORADO                         9265                    0 C00-C97; I20-I25  
+##  7 CONNECTICUT                      7588                    0 C00-C97; I20-I25  
+##  8 DELAWARE                         2641                    0 C00-C97; I20-I25  
+##  9 DISTRICT OF COL…                 1223                    0 C00-C97; I20-I25  
+## 10 FLORIDA                         61467                    0 C00-C97; I20-I25  
+## # ℹ 41 more rows
+## # ℹ 3 more variables: selected_icd_subchapters &lt;chr&gt;, population_65_plus &lt;dbl&gt;,
+## #   missing_population_counts &lt;int&gt;</code></pre>
+<pre class="r"><code># Show missing or incomplete results
+checks_needed &lt;- part2_data %&gt;%
+  filter(
+    is.na(total_deaths_65_plus) |
+      is.na(population_65_plus) |
+      missing_death_counts &gt; 0 |
+      missing_population_counts &gt; 0
+  )
+
+print(checks_needed)</code></pre>
+<pre><code>## # A tibble: 0 × 7
+## # ℹ 7 variables: state &lt;chr&gt;, total_deaths_65_plus &lt;dbl&gt;,
+## #   missing_death_counts &lt;int&gt;, selected_icd_codes &lt;chr&gt;,
+## #   selected_icd_subchapters &lt;chr&gt;, population_65_plus &lt;dbl&gt;,
+## #   missing_population_counts &lt;int&gt;</code></pre>
+<pre class="r"><code># Confirm one row per state
+stopifnot(!anyDuplicated(part2_data$state))
+
+
+# 12. EXPORT RESULTS ---------------------------------------
+
+write_csv(
+  part2_data,
+  &quot;part2_mortality_population_65_plus.csv&quot;
+)
+
+write_csv(
+  top_2_icd,
+  &quot;part2_selected_icd_subchapters.csv&quot;
+)
+
+# Show the folder containing the exported files
+getwd()</code></pre>
+<pre><code>## [1] &quot;C:/Users/shada/Documents/Group 14/group 14&quot;</code></pre>
 </div>
 
 
