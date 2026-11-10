@@ -1137,6 +1137,27 @@ write_csv(
 # Show the folder containing the exported files
 getwd()</code></pre>
 <pre><code>## [1] &quot;C:/Users/shada/Documents/Group 14/group 14&quot;</code></pre>
+<pre class="r"><code>final_milestone3 &lt;- readr::read_csv(
+  &quot;part2_mortality_population_65_plus.csv&quot;
+) %&gt;%
+  mutate(state = toupper(state)) %&gt;%
+  left_join(
+    medicare_clean,
+    by = c(&quot;state&quot; = &quot;State&quot;)
+  )</code></pre>
+<pre><code>## Rows: 51 Columns: 7
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (3): state, selected_icd_codes, selected_icd_subchapters
+## dbl (4): total_deaths_65_plus, missing_death_counts, population_65_plus, mis...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>write.csv(
+  final_milestone3,
+  &quot;final_milestone3.csv&quot;,
+  row.names = FALSE
+)</code></pre>
 </div>
 
 

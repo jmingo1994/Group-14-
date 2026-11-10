@@ -387,3 +387,21 @@ write_csv(
 getwd()
 
 ```
+
+```{r}
+final_milestone3 <- readr::read_csv(
+  "part2_mortality_population_65_plus.csv"
+) %>%
+  mutate(state = toupper(state)) %>%
+  left_join(
+    medicare_clean,
+    by = c("state" = "State")
+  )
+
+write.csv(
+  final_milestone3,
+  "final_milestone3.csv",
+  row.names = FALSE
+)
+```
+

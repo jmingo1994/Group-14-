@@ -1,0 +1,52 @@
+"state","total_deaths_65_plus","missing_death_counts","selected_icd_codes","selected_icd_subchapters","population_65_plus","missing_population_counts","Enrollees","Spending","spending_per_enrollee"
+"ALABAMA",11307,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",888817,0,528983,5653598984,10687.6761332595
+"ALASKA",1140,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",97663,0,105831,1051813241,9938.61194735002
+"ARIZONA",16807,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1333046,0,767513,7745898078,10092.2044030525
+"ARKANSAS",8355,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",528101,0,430724,4272207750,9918.66659392093
+"CALIFORNIA",74993,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",5957092,0,3436742,43255054191,12586.0638334213
+"COLORADO",9265,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",879653,0,518796,4904130297,9452.90691716975
+"CONNECTICUT",7588,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",649235,0,363399,4433665245,12200.5433284076
+"DELAWARE",2641,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",201646,0,171134,1954121238,11418.6616218869
+"DISTRICT OF COLUMBIA",1223,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",85838,0,70224,794142024,11308.6982228298
+"FLORIDA",61467,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",4598386,0,2359900,28720918314,12170.3963362854
+"GEORGIA",18895,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1584071,0,953980,10195174819,10686.9901035661
+"HAWAII",3057,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",282304,0,145637,1088203917,7472.02920274381
+"IDAHO",3830,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",315456,0,215741,1926353213,8929.00845458212
+"ILLINOIS",27327,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",2101462,0,1507029,17004301474,11283.3273108878
+"INDIANA",16227,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1114688,0,775334,8340501710,10757.3016403253
+"IOWA",8449,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",565273,0,465570,4587577906,9853.68023283287
+"KANSAS",6982,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",489638,0,414903,4370255665,10533.1985186899
+"KENTUCKY",11524,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",770260,0,536961,5434363793,10120.5931026648
+"LOUISIANA",10816,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",761810,0,473575,5517151179,11650.0051290714
+"MAINE",4097,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",297165,0,187420,1716550370,9158.84307971401
+"MARYLAND",12991,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1003157,0,898929,10696224308,11898.8533109956
+"MASSACHUSETTS",14302,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1214693,0,973092,11347566027,11661.3496226462
+"MICHIGAN",27609,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1822782,0,1024125,11141909988,10879.4434155987
+"MINNESOTA",11350,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",955683,0,509904,5858445932,11489.311580219
+"MISSISSIPPI",7642,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",494244,0,431483,4931158545,11428.3958927698
+"MISSOURI",15853,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1083767,0,707230,7409955196,10477.4333611414
+"MONTANA",2887,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",216423,0,188073,1626583833,8648.68339953103
+"NEBRASKA",4089,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",321890,0,272226,2904540192,10669.5914130171
+"NEVADA",6982,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",518467,0,316990,3525162484,11120.737196757
+"NEW HAMPSHIRE",3324,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",267521,0,234830,2200212231,9369.38308989482
+"NEW JERSEY",19636,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1565917,0,1075739,13333090391,12394.3543842884
+"NEW MEXICO",5105,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",391946,0,252475,2187724333,8665.11271611051
+"NEW YORK",47550,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",3477721,0,1996240,26228103828,13138.7527692061
+"NORTH CAROLINA",23120,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1793314,0,1148967,11611543435,10106.0721804891
+"NORTH DAKOTA",1574,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",124641,0,105943,1197587193,11304.0709910046
+"OHIO",30814,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",2098999,0,1227265,13045771320,10629.9546715665
+"OKLAHOMA",10162,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",644711,0,528377,5988040719,11332.8943519495
+"OREGON",9688,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",788379,0,459062,3952432859,8609.80185465144
+"PENNSYLVANIA",34797,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",2464454,0,1493883,15821015593,10590.5319178276
+"RHODE ISLAND",2838,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",198791,0,111983,1090410347,9737.28465034871
+"SOUTH CAROLINA",12019,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",966399,0,712041,7303580438,10257.2470377408
+"SOUTH DAKOTA",2196,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",156418,0,136475,1555704395,11399.1895585272
+"TENNESSEE",18473,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1185272,0,766844,7583702280,9889.49809870065
+"TEXAS",50314,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",3875984,0,2347931,28089834378,11963.6541184558
+"UTAH",4051,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",389148,0,242369,2369071426,9774.64702994195
+"VERMONT",1981,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",133258,0,124384,1145092454,9206.1073289169
+"VIRGINIA",18167,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1406652,0,1112731,10542973901,9474.86310797488
+"WASHINGTON",16290,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1255178,0,865220,7559019903,8736.52932548947
+"WEST VIRGINIA",6181,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",369420,0,254195,2671150063,10508.2714569523
+"WISCONSIN",14270,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",1057243,0,622437,6356566138,10212.3847682577
+"WYOMING",1329,0,"C00-C97; I20-I25","Malignant neoplasms; Ischaemic heart diseases",103877,0,110505,1102331666,9975.40080539342
